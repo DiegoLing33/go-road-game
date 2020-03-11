@@ -1,0 +1,15 @@
+{
+  "name": "goroad",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "webpack": "^4.42.0"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.11"
+  }
+}
