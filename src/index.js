@@ -17,10 +17,12 @@ window.onload = function () {
     car.setSprite(carSprite);
     game.addEntity(car);
 
-    window.onkeydown = ev => {
-      if(ev.key === '1') car.start(game.time);
-      if(ev.key === '2') car.stop(game.time);
-      if(ev.key === '3') car.turn(1, game.time);
-      if(ev.key === '4') car.turn(-1, game.time);
-    };
+    client.keyboard.onKeyDown(key => {
+        if (key === 'w') car.movement(1, game.time);
+        if (key === 'q') car.turn(1, game.time);
+        if (key === 'e') car.turn(-1, game.time);
+    }).onKeyUp(key => {
+        if (key === 'w') car.movement(-1, game.time);
+    });
+
 };

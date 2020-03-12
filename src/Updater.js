@@ -37,41 +37,66 @@ export default class Updater {
     updateCar(car) {
         const secondsToMax = car.getSecondsToMax();
 
-        if (car.started) {
-            if (car.currentSpeed >= 1) {
-                car.currentSpeed = 1;
-            } else {
+        // Velocity
+        if(car.velocity === 1){
+            if(car.currentSpeed < 1) {
                 const gone = (this.game.time - car.startTime) / 1000;
-                car.currentSpeed = Easing.easeOutCubic((gone / secondsToMax));
+                car.currentSpeed = Easing.easeOutCubic((gone / secondsToMax) + car.stopSpeedFreeze);
+            }else{
+                car.currentSpeed = 1;
+            }
+        }else if(car.velocity === -1){
+            if(car.currentSpeed > 0){
+                const gone = (this.game.time - car.startTime) / 1000; //0.2
+                car.currentSpeed = Easing.easeOutCubic((0.7 - gone) * car.stopSpeedFreeze);
+            }else{
+                car.currentSpeed = 0;
+                car.velocity = 0;
+                car.fire("stopped");
             }
         }
 
-        if (car.stopping) {
-            if (car.currentSpeed <= 0) return;
-            const gone = (this.game.time - car.stopTime) / 1000;
-            car.currentSpeed = 1 - Easing.easeOutCubic(gone / 1.2);
-        } else if (car.turning) {
-            const gone = (this.game.time - car.startTime) / 1000;
-            car.currentSpeed = Easing.easeOutCubic((gone / 1.2));
-
+        if (car.turning) {
             if (car.rotationPlan > car.rotation) {
-                car.rotation += car.currentSpeed * 90;
+                car.rotation += (car.currentSpeed / 10) * 90;
                 if (car.rotation >= car.rotationPlan) {
                     car.turning = false;
                     car.rotation = (car.rotationPlan % 360);
+                    car.startTime -= 1000;
+                    car.fire("rotated", car.rotation);
                 }
             } else {
-                car.rotation -= car.currentSpeed * 90;
+                car.rotation -= (car.currentSpeed / 10) * 90;
                 if (car.rotation <= car.rotationPlan) {
                     car.turning = false;
                     car.rotation = (car.rotationPlan % 360);
+                    car.startTime -= 1000;
+                    car.fire("rotated", car.rotation);
                 }
             }
         }
-        if (car.getOrientation() === Orientation.DOWN) car.renderY += car.currentSpeed;
-        if (car.getOrientation() === Orientation.UP) car.renderY -= car.currentSpeed;
-        if (car.getOrientation() === Orientation.LEFT) car.renderX -= car.currentSpeed;
-        if (car.getOrientation() === Orientation.RIGHT) car.renderX += car.currentSpeed;
+
+        if (!car.turning) {
+            if (car.getOrientation() === Orientation.DOWN) car.renderY += car.currentSpeed;
+            if (car.getOrientation() === Orientation.UP) car.renderY -= car.currentSpeed;
+            if (car.getOrientation() === Orientation.LEFT) car.renderX -= car.currentSpeed;
+            if (car.getOrientation() === Orientation.RIGHT) car.renderX += car.currentSpeed;
+        }
+
+        // Speed generation
+        // if (car.started) {
+        //     if (car.currentSpeed >= 1) {
+        //         car.currentSpeed = 1;
+        //     } else {
+        //         const gone = (this.game.time - car.startTime) / 1000;
+        //         if (car.turning)
+        //             car.currentSpeed = Easing.easeOutCubic((gone / 5) * (car.stopSpeedFreeze + 0.04));
+        //         else
+        //             car.currentSpeed = Easing.easeOutCubic((gone / secondsToMax) + car.stopSpeedFreeze);
+        //     }
+        // }
+
+
     }
 
 }

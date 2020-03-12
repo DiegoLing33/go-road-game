@@ -1,6 +1,9 @@
 /**
  * The entity
  */
+import Mixin from "../utils/Mixin";
+import Observable from "../mixins/Observable";
+
 export default class Entity {
 
     constructor() {
@@ -11,6 +14,7 @@ export default class Entity {
         this.sprite = null;
         this.visible = true;
         this.rotation = 0;
+        this.events = {};
     }
 
     /**
@@ -46,3 +50,5 @@ export default class Entity {
     }
 
 }
+
+Mixin(Entity, Observable);

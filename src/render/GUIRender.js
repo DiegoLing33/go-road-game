@@ -15,7 +15,7 @@ export default class GUIRender {
         const car = this.game.entities[0];
 
         this.masterRender.drawMultilineText(this.masterRender.textContext,
-            `FPS: ${this.masterRender.FPS}\nSpeed: ${car.getSpeedPerHour()}\nRotation: ${car.rotation}`
+            `FPS: ${this.masterRender.FPS}\nSpeed: ${car.getSpeedPerHour()} km/h\nRotation: ${car.rotation}\n\n[P] Go: ${car.velocity >= 1 ? "Y" : "N"}\n[P] Stop: ${car.velocity <= -1 ? "Y" : "N"}`
             , 200, 0);
     }
 

@@ -1,11 +1,12 @@
 import Game from "./Game";
 import Camera from "./Camera";
 import Screen from "./utils/Screen";
-import MasterRender from "./render/MaserRender";
+import KeyboardController from "./controllers/KeyboardController";
 
 export default class Client {
     constructor() {
         this.game = null;
+        this.keyboard = new KeyboardController();
     }
 
     createGame() {

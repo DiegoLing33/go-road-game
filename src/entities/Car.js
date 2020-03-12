@@ -13,40 +13,31 @@ export default class Car extends Entity {
         this.orientation = Orientation.DOWN;
 
         // States
-        this.started = false;
-        this.stopping = false;
         this.turning = false;
 
         this.startTime = 0;
-        this.stopTime = 0;
 
         this.currentSpeed = 0;
         this.rotationPlan = 0;
+        this.stopSpeedFreeze = 0;
+        this.velocity = false;
 
+        // Stats
         this.power = 100;
-    }
-
-    start(time) {
-        this.startTime = time;
-        this.started = true;
-        this.stopping = false;
-        this.turning = false;
-    }
-
-    stop(time) {
-        this.stopTime = time;
-        this.started = false;
-        this.stopping = true;
-        this.turning = false;
     }
 
     turn(o, time) {
         if(this.turning) return;
-        this.started = false;
-        this.stopping = false;
         this.turning = true;
         this.startTime = time;
         this.rotationPlan = this.rotation + (90 * o);
+        this.stopSpeedFreeze = this.currentSpeed;
+    }
+
+    movement(val, time){
+        this.stopSpeedFreeze = this.currentSpeed;
+        this.startTime = time;
+        this.velocity = val;
     }
 
     /**
