@@ -1,13 +1,16 @@
 import config from "../config/config";
 import GUIRender from "./GUIRender";
+import Car from "../entities/Car";
+import Sprite from "../entities/Sprite";
 
 export default class MasterRender {
 
-    constructor(game, entityCanvas, textCanvas) {
+    constructor(game, entityCanvas, textCanvas, mapCanvas) {
         this.game = game;
 
         this.entityCanvas = entityCanvas;
         this.textCanvas = textCanvas;
+        this.mapCanvas = mapCanvas;
 
         this.entityCanvas.width = game.camera.width;
         this.entityCanvas.height = game.camera.height;
@@ -15,6 +18,13 @@ export default class MasterRender {
         this.textCanvas.width = game.camera.width;
         this.textCanvas.height = game.camera.height;
 
+        this.mapCanvas.width = game.camera.width;
+        this.mapCanvas.height = game.camera.height;
+
+        /**
+         * @type {CanvasRenderingContext2D}
+         */
+        this.mapContext = this.mapCanvas.getContext("2d");
 
         /**
          * @type {CanvasRenderingContext2D}
@@ -116,7 +126,7 @@ export default class MasterRender {
         color = color || "#000000";
 
         ctx.save();
-        ctx.fillStyle = ctx;
+        ctx.fillStyle = color;
         ctx.fillText(text, x, y + fs);
         ctx.restore();
     }
@@ -147,11 +157,39 @@ export default class MasterRender {
      * @param {HTMLImageElement} image
      * @param {number} x
      * @param {number} y
+     * @param {number} [width]
+     * @param {number} [height]
      */
-    drawImageSimple(ctx, image, x, y) {
+    drawImageSimple(ctx, image, x, y, width, height) {
         const ts = config.ts;
+        width = width || ts;
+        height = height || ts;
         ctx.save();
-        ctx.drawImage(image, 0, 0, image.width, image.height, x, y, ts, ts);
+        ctx.drawImage(image, 0, 0, image.width, image.height, x, y, width, height);
+        ctx.restore();
+    }
+
+    /**
+     * Draws rotated image
+     * @param ctx
+     * @param image
+     * @param x
+     * @param y
+     * @param deg
+     * @param {number} [width]
+     * @param {number} [height]
+     */
+    drawImageSimpleRotated(ctx, image, x, y, deg, width, height) {
+        const ts = config.ts;
+        width = width || ts;
+        height = height || ts;
+        const rad = deg * Math.PI / 180;
+        ctx.save();
+        ctx.translate(x + width / 2, y + height / 2);
+        ctx.rotate(rad);
+        const nx = width / 2 * (-1);
+        const ny = height / 2 * (-1);
+        this.drawImageSimple(ctx, image, nx, ny, width, height);
         ctx.restore();
     }
 
@@ -169,11 +207,30 @@ export default class MasterRender {
         const deg = entity.rotation;
         const rad = deg * Math.PI / 180;
         const image = entity.sprite.getImage();
-
         ctx.save();
         ctx.translate(x + ts / 2, y + ts / 2);
         ctx.rotate(rad);
-        ctx.drawImage(image, 0, 0, image.width, image.height, ts / 2 * (-1), ts / 2 * (-1), ts, ts);
+        const nxy = ts / 2 * (-1);
+        this.drawImageSimple(ctx, image, nxy, nxy);
+        if (entity instanceof Car) {
+            if (entity.lighting && entity.carLightsSprite && entity.carLightsSprite.isReady()) {
+                this.drawImageSimple(ctx, entity.carLightsSprite.getImage(), nxy, nxy + (ts * 0.65));
+            }
+
+            if (entity.stopLightsSprite && entity.stopLightsSprite.isReady()) {
+                ctx.save();
+                if (entity.velocity < 1) {
+                    if (entity.velocity < 0) ctx.globalAlpha = 1;
+                    if (entity.velocity === 0) ctx.globalAlpha = 0.66;
+                    this.drawImageSimple(ctx, entity.stopLightsSprite.getImage(), nxy, nxy - (ts * 0.29));
+                }
+                if (entity.velocity >= 1 && entity.lighting) {
+                    ctx.globalAlpha = 0.35;
+                    this.drawImageSimple(ctx, entity.stopLightsSprite.getImage(), nxy, nxy - (ts * 0.29));
+                }
+                ctx.restore();
+            }
+        }
         ctx.restore();
     }
 
@@ -183,6 +240,10 @@ export default class MasterRender {
     drawTarget() {
         const {x, y} = this.game.getMouseGrid();
         this.strokeRect(this.entityContext, x, y, 1, 1, "#000000");
+
+        if (this.game.mapEditor.enabled)
+            this.strokeRect(this.entityContext, this.game.selectedX, this.game.selectedY,
+                1, 1, "#aa0000");
     }
 
     reset() {
@@ -199,6 +260,26 @@ export default class MasterRender {
             return;
         }
         this.frame++;
+    }
+
+    renderMap() {
+        this.clear(this.mapContext);
+        const ts = config.ts;
+        const {width, height} = this.game.map.getSize();
+        const data = this.game.map.data.map;
+        for (let i = 0; i < width; i++) {
+            for (let j = 0; j < height; j++) {
+                const it = data[j][i];
+                if (it instanceof Array)
+                    it.forEach(tile => {
+                        if (tile.hasOwnProperty("t")) {
+
+                            this.drawImageSimpleRotated(this.mapContext,
+                                Sprite.get(tile.t).image, i * ts, j * ts, tile.r || 0);
+                        }
+                    });
+            }
+        }
     }
 
     render() {

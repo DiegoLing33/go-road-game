@@ -1,6 +1,6 @@
 import Entity from "./Entity";
 import Orientation from "../States/Orientation";
-import Easing from "../utils/Easing";
+import Sprite from "./Sprite";
 
 //11 sec -> 70power
 //4 sec -> 700power
@@ -10,7 +10,6 @@ import Easing from "../utils/Easing";
 export default class Car extends Entity {
     constructor() {
         super();
-        this.orientation = Orientation.DOWN;
 
         // States
         this.turning = false;
@@ -20,10 +19,18 @@ export default class Car extends Entity {
         this.currentSpeed = 0;
         this.rotationPlan = 0;
         this.stopSpeedFreeze = 0;
-        this.velocity = false;
+        this.velocity = 0;
 
         // Stats
         this.power = 100;
+        this.lighting = false;
+
+        this.carLightsSprite = Sprite.get("lights/carlights0");
+        this.stopLightsSprite = Sprite.get("lights/car_stop_lights0");
+    }
+
+    setLightSprite(sprite){
+        this.carLightsSprite = sprite;
     }
 
     turn(o, time) {

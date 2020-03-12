@@ -1,6 +1,7 @@
 import config from "./config/config";
 import MasterRender from "./render/MaserRender";
 import Updater from "./Updater";
+import MapEditor from "./MapEditor";
 
 export default class Game {
 
@@ -22,11 +23,14 @@ export default class Game {
 
         this.mouseX = 0;
         this.mouseY = 0;
+        this.selectedX = -1;
+        this.selectedY = -1;
 
         this.entities = [];
         this.time = new Date().getTime();
 
         this.updater = new Updater(this);
+        this.mapEditor = new MapEditor(this);
     }
 
     /**
@@ -69,7 +73,8 @@ export default class Game {
     setUpMasterRender() {
         const masterRender = new MasterRender(this,
             document.getElementById("ec"),
-            document.getElementById("tc")
+            document.getElementById("tc"),
+            document.getElementById("mc")
         );
         this.setRender(masterRender);
     }
@@ -83,9 +88,10 @@ export default class Game {
 
     startGameLoop() {
         const wait = setInterval(() => {
-            if (this.camera) {
+            if (this.camera && this.map && this.map.isReady()) {
                 clearInterval(wait);
                 this.setUpMasterRender();
+                this.render.renderMap();
                 requestAnimationFrame(this.tick.bind(this));
             }
         }, 200);

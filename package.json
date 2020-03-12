@@ -7,7 +7,8 @@
     "webpack": "^4.42.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "build:watch": "webpack --watch --config webpack.config.js"
   },
   "devDependencies": {
     "webpack-cli": "^3.3.11"
