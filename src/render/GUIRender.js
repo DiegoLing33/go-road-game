@@ -34,10 +34,10 @@ export default class GUIRender {
         if (!this.game.entities[0]) return;
         const car = this.game.entities[0];
 
-        this.drawSpeedBar(car, this.masterRender.textContext, 400, 10, 100);
+        this.drawSpeedBar(car, this.masterRender.textContext, 400, 10, 200);
 
         this.masterRender.drawMultilineText(this.masterRender.textContext,
-            `FPS: ${this.masterRender.FPS}\n`
+            `FPS: ${this.masterRender.FPS}\nCS: ${car.currentSpeed}`
             , 200, 0);
     }
 

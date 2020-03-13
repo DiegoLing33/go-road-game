@@ -1,6 +1,7 @@
-import Car from "./entities/Car";
+import Car, {CarAction} from "./entities/Car";
 import Easing from "./utils/Easing";
 import Orientation from "./States/Orientation";
+import TrafficLight from "./entities/TrafficLight";
 
 export default class Updater {
 
@@ -27,6 +28,7 @@ export default class Updater {
      * @param {Entity} entity
      */
     updateEntity(entity) {
+        entity.update(this.game.time);
         if (entity instanceof Car) this.updateCar(entity);
     }
 
@@ -35,28 +37,10 @@ export default class Updater {
      * @param {Car} car
      */
     updateCar(car) {
-        const secondsToMax = car.getSecondsToMax();
 
-        // Velocity
-        if(car.velocity === 1){
-            if(car.currentSpeed < 1) {
-                const gone = (this.game.time - car.startTime) / 1000;
-                car.currentSpeed = Easing.easeOutCubic((gone / secondsToMax) + car.stopSpeedFreeze);
-            }else{
-                car.currentSpeed = 1;
-            }
-        }else if(car.velocity === -1){
-            if(car.currentSpeed > 0){
-                const gone = (this.game.time - car.startTime) / 1000; //0.2
-                car.currentSpeed = Easing.easeOutCubic((0.7 - gone) * car.stopSpeedFreeze);
-            }else{
-                car.currentSpeed = 0;
-                car.velocity = 0;
-                car.fire("stopped");
-            }
-        }
 
         if (car.turning) {
+
             if (car.rotationPlan > car.rotation) {
                 car.rotation += (car.currentSpeed / 10) * 90;
                 if (car.rotation >= car.rotationPlan) {
@@ -74,13 +58,33 @@ export default class Updater {
                     car.fire("rotated", car.rotation);
                 }
             }
+
         }
 
         if (!car.turning) {
-            if (car.getOrientation() === Orientation.DOWN) car.renderY += car.currentSpeed;
-            if (car.getOrientation() === Orientation.UP) car.renderY -= car.currentSpeed;
-            if (car.getOrientation() === Orientation.LEFT) car.renderX -= car.currentSpeed;
-            if (car.getOrientation() === Orientation.RIGHT) car.renderX += car.currentSpeed;
+            const nextGrid = car.getNextGrid();
+            const entity = this.game.entities.find(v => v.gridX === nextGrid.x && v.gridY === nextGrid.y);
+            if(entity){
+                if(entity instanceof TrafficLight && entity.isMirrorMe(car)){
+                    if(entity.color === -1 && car.hasMovingForce()) {
+                        car.apply(CarAction.STOPPING, this.game.time);
+                    }
+                }
+            }
+
+            const changes = car.currentSpeed * (3);
+            if (car.getOrientation() === Orientation.DOWN) {
+                car.setRenderPosition(car.renderX, car.renderY + changes);
+            }
+            if (car.getOrientation() === Orientation.UP) {
+                car.setRenderPosition(car.renderX, car.renderY - changes);
+            }
+            if (car.getOrientation() === Orientation.LEFT) {
+                car.setRenderPosition(car.renderX - changes, car.renderY);
+            }
+            if (car.getOrientation() === Orientation.RIGHT) {
+                car.setRenderPosition(car.renderX + changes, car.renderY);
+            }
         }
 
         // Speed generation

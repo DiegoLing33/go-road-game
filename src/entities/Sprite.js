@@ -8,6 +8,7 @@ import Logger from "../utils/Logger";
 export default class Sprite {
 
     constructor(url) {
+        this.name = url;
         url = "sprites/" + url;
         if (!url.endsWith(".png")) url += ".png";
         this.image = new Image();

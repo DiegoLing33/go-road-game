@@ -97,6 +97,11 @@ export default class Game {
         }, 200);
     }
 
+    clearSelection(){
+        this.selectedX = -1;
+        this.selectedY = -1;
+    }
+
     /**
      * Adds the entity
      * @param entity

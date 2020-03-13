@@ -2,16 +2,89 @@
 <head>
     <title>Develop project</title>
     <style>
-        canvas{
+        html, body {
+            font-family: monospace;
+        }
+
+        canvas {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
         }
+
+        .bar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30%;
+            background-color: dimgrey;
+            z-index: 10;
+            border-left: 8px solid #393939;
+            display: none;
+        }
+
+        .bar > .header {
+            padding: 10px;
+            font-size: 30px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .bar > .body {
+            padding: 10px;
+            overflow-y: scroll;
+            max-height: 100%;
+        }
+
+        .bar .sub-header{
+            font-size: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            padding: 10px;
+        }
+
+        .bar .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 30%);
+            grid-gap: 10px;
+        }
+
+        .bar .item {
+            background-color: #3d3d3d;
+            cursor: pointer;
+            transition: all 0.6s;
+        }
+
+        .bar .item:hover {
+            background-color: #787878;
+        }
+
+        .bar > .close{
+            float: right;
+            padding: 10px;
+            font-size: 30px;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: all 0.6s;
+        }
+        .bar >.close:hover{
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+<div id="bar" class="bar">
+    <div class="close">&times;</div>
+    <div class="header">
+        Header
+    </div>
+    <div class="body">
+
+    </div>
+</div>
 <canvas id="mc" style="z-index: 1"></canvas>
 <canvas id="ec" style="z-index: 2"></canvas>
 <canvas id="tc" style="z-index: 3"></canvas>

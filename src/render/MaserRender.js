@@ -1,7 +1,8 @@
 import config from "../config/config";
 import GUIRender from "./GUIRender";
-import Car from "../entities/Car";
+import Car, {CarAction} from "../entities/Car";
 import Sprite from "../entities/Sprite";
+import TrafficLight from "../entities/TrafficLight";
 
 export default class MasterRender {
 
@@ -212,6 +213,7 @@ export default class MasterRender {
         ctx.rotate(rad);
         const nxy = ts / 2 * (-1);
         this.drawImageSimple(ctx, image, nxy, nxy);
+
         if (entity instanceof Car) {
             if (entity.lighting && entity.carLightsSprite && entity.carLightsSprite.isReady()) {
                 this.drawImageSimple(ctx, entity.carLightsSprite.getImage(), nxy, nxy + (ts * 0.65));
@@ -219,18 +221,21 @@ export default class MasterRender {
 
             if (entity.stopLightsSprite && entity.stopLightsSprite.isReady()) {
                 ctx.save();
-                if (entity.velocity < 1) {
-                    if (entity.velocity < 0) ctx.globalAlpha = 1;
-                    if (entity.velocity === 0) ctx.globalAlpha = 0.66;
-                    this.drawImageSimple(ctx, entity.stopLightsSprite.getImage(), nxy, nxy - (ts * 0.29));
-                }
-                if (entity.velocity >= 1 && entity.lighting) {
-                    ctx.globalAlpha = 0.35;
-                    this.drawImageSimple(ctx, entity.stopLightsSprite.getImage(), nxy, nxy - (ts * 0.29));
-                }
+                if (entity.action === CarAction.STOPPING) ctx.globalAlpha = 1;
+                else if (entity.action === CarAction.STOPPED) ctx.globalAlpha = 0.66;
+                else if (entity.hasMovingForce() && entity.lighting) ctx.globalAlpha = 0.3;
+                else ctx.globalAlpha = 0;
+                this.drawImageSimple(ctx, entity.stopLightsSprite.getImage(), nxy, nxy - (ts * 0.29));
                 ctx.restore();
             }
+        } else if (entity instanceof TrafficLight) {
+            if (entity.color === -1)
+                this.drawImageSimple(ctx, entity.spriteRed.getImage(), nxy, nxy);
+            else if (entity.color === 1)
+                this.drawImageSimple(ctx, entity.spriteGreen.getImage(), nxy, nxy);
         }
+
+
         ctx.restore();
     }
 
